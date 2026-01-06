@@ -15,8 +15,8 @@ const app_env = { BASE_URL: '' } // /custom
 
 // Use environment variable to determine the target.
 //  const target = process.env.VITE_PROXY_TARGET || "http://127.0.0.1:7860";
-const target = process.env.VITE_PROXY_TARGET || "http://192.168.106.120:3002";
-const fileServiceTarget = "http://192.168.106.116:9000";
+const target = process.env.VITE_PROXY_TARGET || "http://112.28.69.42:3001";
+const fileServiceTarget = "http://112.28.69.42:3001";
 
 // 公共代理配置
 const commonProxyOptions = {

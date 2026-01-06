@@ -1,0 +1,142 @@
+.login-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-background {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+.login-content-wrapper {
+    width: 100%;
+    height: 100vh;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.login-card {
+    max-width: 480px;
+    margin: 0 auto;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.login-logo {
+    width: 205px;
+    height: 35px;
+    margin: 0 auto 16px;
+    display: block;
+    object-fit: contain;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .login-content-wrapper {
+        padding: 20px 16px;
+    }
+    
+    .login-card {
+        max-width: 100%;
+    }
+    
+    .login-logo {
+        width: 160px;
+        height: 28px;
+    }
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+    .login-card {
+        background-color: rgba(30, 30, 30, 0.95) !important;
+    }
+}
+
+/* 表单输入框样式优化 */
+.login-card .ant-input-affix-wrapper,
+.login-card .ant-input {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.login-card .ant-input-affix-wrapper:hover,
+.login-card .ant-input:hover {
+    border-color: #40a9ff;
+}
+
+.login-card .ant-input-affix-wrapper-focused,
+.login-card .ant-input:focus {
+    border-color: #1890ff;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 按钮样式优化 */
+.login-card .ant-btn-primary {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.login-card .ant-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+}
+
+/* 卡片内边距优化 */
+.login-card .ant-card-body {
+    padding: 40px 32px;
+}
+
+@media (max-width: 768px) {
+    .login-card .ant-card-body {
+        padding: 32px 24px;
+    }
+}
+
+/* 验证码图片容器优化 */
+.login-card .ant-space-compact {
+    display: flex;
+    align-items: center;
+}
+
+.login-card .ant-space-compact > div:last-child {
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    transition: all 0.3s ease;
+}
+
+.login-card .ant-space-compact > div:last-child:hover {
+    background-color: #f0f0f0;
+}
+
+/* 链接样式 */
+.login-card .ant-typography a {
+    transition: color 0.3s ease;
+}
+
+.login-card .ant-typography a:hover {
+    color: #1890ff;
+}
+
