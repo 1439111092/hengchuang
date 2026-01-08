@@ -20,7 +20,7 @@ export default defineConfig(({ command }) => ({
   },
   server: {
     host: '0.0.0.0',
-    port: 4001,
+    port: 4002,
     strictPort: false,
     proxy: {
       // '^/api/': {

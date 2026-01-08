@@ -1,6 +1,6 @@
 import type { ConversationListResponse } from '~/data-provider/data-provider/src';
 import { PermissionTypes, Permissions } from '~/data-provider/data-provider/src';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchContext } from '~/Providers';
 import { Conversations } from '~/components/Conversations';
 import { Spinner } from '~/components/svg';
@@ -28,11 +28,16 @@ const Nav = ({
   const localize = useLocalize();
   const { isAuthenticated } = useAuthContext();
 
-  const [navWidth, setNavWidth] = useState('260px');
+  const [navWidth, setNavWidth] = useState(() => {
+    const savedWidth = localStorage.getItem('navWidth');
+    return savedWidth ? savedWidth : '260px';
+  });
   const [isHovering, setIsHovering] = useState(false);
   const isSmallScreen = useMediaQuery('(max-width: 768px)');
   const [newUser, setNewUser] = useLocalStorage('newUser', true);
   const [isToggleHovering, setIsToggleHovering] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const navRef = useRef<HTMLDivElement>(null);
 
   const hasAccessToBookmarks = useHasAccess({
     permissionType: PermissionTypes.BOOKMARKS,
@@ -55,9 +60,45 @@ const Nav = ({
       }
       setNavWidth('320px');
     } else {
-      setNavWidth('260px');
+      // 只在没有保存的宽度时才使用默认值
+      const savedWidth = localStorage.getItem('navWidth');
+      if (!savedWidth) {
+        setNavWidth('260px');
+      }
     }
   }, [isSmallScreen]);
+
+  // 拖动调整宽度
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || isSmallScreen) return;
+      const newWidth = e.clientX;
+      // 限制宽度范围：最小180px，最大600px
+      if (newWidth >= 180 && newWidth <= 600) {
+        const widthStr = `${newWidth}px`;
+        setNavWidth(widthStr);
+        localStorage.setItem('navWidth', widthStr);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isDragging, isSmallScreen]);
 
   const [showLoading, setShowLoading] = useState(false);
 
@@ -114,17 +155,18 @@ const Nav = ({
   return (
     <>
       <div
+        ref={navRef}
         data-testid="nav"
         className={
-          'nav active max-w-[320px] flex-shrink-0 overflow-x-hidden md:max-w-[260px] bg-[#F9FBFF]'
+          'nav active max-w-[320px] flex-shrink-0 overflow-x-hidden md:max-w-[600px] bg-[#F9FBFF] relative'
         }
         style={{
           width: navVisible ? navWidth : '0px',
           visibility: navVisible ? 'visible' : 'hidden',
-          transition: 'width 0.2s, visibility 0.2s',
+          transition: isDragging ? 'none' : 'width 0.2s, visibility 0.2s',
         }}
       >
-        <div className="h-full w-[320px] md:w-[260px]">
+        <div className="h-full" style={{ width: navWidth }}>
           <div className="flex h-full min-h-0 flex-col">
             <div
               className={cn(
@@ -173,6 +215,33 @@ const Nav = ({
             </div>
           </div>
         </div>
+        
+        {/* 拖动条 */}
+        {navVisible && !isSmallScreen && (
+          <div
+            className="absolute top-0 right-0 w-1 h-full cursor-col-resize z-20 group"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            style={{
+              backgroundColor: isDragging ? '#1890ff' : 'transparent',
+            }}
+            onMouseEnter={(e) => {
+              if (!isDragging) {
+                e.currentTarget.style.backgroundColor = 'rgba(24, 144, 255, 0.3)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isDragging) {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }
+            }}
+          >
+            {/* 拖动提示 */}
+            <div className="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2 w-1 h-12 bg-sky-400/0 group-hover:bg-sky-400/50 rounded-full transition-colors" />
+          </div>
+        )}
       </div>
       {/* 展开 */}
       <NavToggle
@@ -180,6 +249,7 @@ const Nav = ({
         setIsHovering={setIsToggleHovering}
         onToggle={toggleNavVisible}
         navVisible={navVisible}
+        navWidth={navWidth}
         className="fixed left-0 top-1/2 z-40 hidden md:flex"
       />
       {isSmallScreen && (

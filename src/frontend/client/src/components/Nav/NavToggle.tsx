@@ -10,6 +10,7 @@ export default function NavToggle({
   side = 'left',
   className = '',
   translateX = true,
+  navWidth = '260px',
 }: {
   onToggle: () => void;
   navVisible: boolean;
@@ -18,6 +19,7 @@ export default function NavToggle({
   side?: 'left' | 'right';
   className?: string;
   translateX?: boolean;
+  navWidth?: string;
 }) {
   const localize = useLocalize();
   const transition = {
@@ -29,14 +31,21 @@ export default function NavToggle({
   const topBarRotation = side === 'right' ? `-${rotation}` : rotation;
   const bottomBarRotation = side === 'right' ? rotation : `-${rotation}`;
 
+  // 将 navWidth 转换为数字（去掉 'px' 后缀）
+  const widthValue = parseInt(navWidth.replace('px', '')) || 260;
+  
   return (
     <div
       className={cn(
         className,
         '-translate-y-1/2 transition-transform',
         navVisible ? 'rotate-0' : 'rotate-180',
-        navVisible && translateX ? 'translate-x-[260px]' : 'translate-x-0 ',
       )}
+      style={{
+        transform: navVisible && translateX 
+          ? `translateX(${widthValue}px) translateY(-50%)` 
+          : 'translateX(0) translateY(-50%)',
+      }}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >

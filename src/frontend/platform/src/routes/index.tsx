@@ -22,6 +22,7 @@ const ChatAssitantShare = lazy(() => import("../pages/ChatAppPage/chatAssitantSh
 const ChatShare = lazy(() => import("../pages/ChatAppPage/chatShare"));
 const ChatPro = lazy(() => import("../pages/ChatAppPage/chatWebview"));
 const DataSetPage = lazy(() => import("../pages/DataSetPage"));
+const DataCockpitPage = lazy(() => import("../pages/DataCockpitPage"));
 const DiffFlowPage = lazy(() => import("../pages/DiffFlowPage"));
 const EvaluatingPage = lazy(() => import("../pages/EvaluationPage"));
 const EvaluatingCreate = lazy(() => import("../pages/EvaluationPage/EvaluationCreate"));
@@ -87,6 +88,7 @@ const privateRouter = [
       { path: "evaluation", element: <EvaluatingPage /> },
       { path: "evaluation/create", element: <EvaluatingCreate /> },
       { path: "dataset", element: <DataSetPage /> },
+      { path: "dashboard", element: <DataCockpitPage /> },
       { path: "label", element: <LabelPage /> },
       { path: "label/:id", element: <TaskApps /> },
       { path: "label/chat/:id/:fid/:cid/:type", element: <TaskAppChats /> },

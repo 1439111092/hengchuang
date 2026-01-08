@@ -129,7 +129,12 @@ export default function MainLayout() {
             items.push({
                 key: 'workspace',
                 label: (
-                    <a href="/workspace/" target="_blank" rel="noopener noreferrer" className="menu-item-link">
+                    <div 
+                        className="menu-item-link cursor-pointer"
+                        onClick={() => {
+                            window.location.href = '/workspace/';
+                        }}
+                    >
                         <div className="flex items-center justify-between w-full">
                             <div className="flex items-center">
                                 <ApplicationIcon className="h-5 w-5 mr-3" />
@@ -137,7 +142,7 @@ export default function MainLayout() {
                             </div>
                             <ChevronRight className="h-4 w-4 opacity-50 transition-opacity" />
                         </div>
-                    </a>
+                    </div>
                 ),
             });
         }
@@ -150,6 +155,21 @@ export default function MainLayout() {
                         <div className="flex items-center">
                             <TechnologyIcon className="h-5 w-5 mr-3" />
                             <span>{t('menu.skills')}</span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    </div>
+                ),
+            });
+        }
+
+        if (isMenu('dashboard')) {
+            items.push({
+                key: 'dashboard',
+                label: (
+                    <div className="flex items-center justify-between w-full menu-item-link" onClick={() => navigate('/dashboard')}>
+                        <div className="flex items-center">
+                            <BarChart3 className="h-5 w-5 mr-3" />
+                            <span>{t('menu.dashboard')}</span>
                         </div>
                         <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
@@ -210,21 +230,6 @@ export default function MainLayout() {
                         <div className="flex items-center">
                             <EvaluatingIcon className="h-5 w-5 mr-3" />
                             <span>{t('menu.evaluation')}</span>
-                        </div>
-                        <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                ),
-            });
-        }
-
-        if (isMenu('dashboard')) {
-            items.push({
-                key: 'dashboard',
-                label: (
-                    <div className="flex items-center justify-between w-full menu-item-link" onClick={() => navigate('/dashboard')}>
-                        <div className="flex items-center">
-                            <BarChart3 className="h-5 w-5 mr-3" />
-                            <span>{t('menu.dashboard')}</span>
                         </div>
                         <ChevronRight className="h-4 w-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>

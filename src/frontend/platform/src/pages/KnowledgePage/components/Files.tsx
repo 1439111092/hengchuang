@@ -370,6 +370,9 @@ export default function Files({ onPreview }) {
                     setSelectedFileObjs([]);
                     setIsAllSelected(false);
                 }} />
+                <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    共 {total} 个文件
+                </span>
                 <Button
                     variant="outline"
                     onClick={() => setMetadataOpen(true)}

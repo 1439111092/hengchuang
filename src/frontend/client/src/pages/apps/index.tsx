@@ -247,13 +247,36 @@ export default function AgentCenter() {
     return (
         <div className="min-h-screen bg-background">
             {/* Fixed Header */}
-            <div className="sticky top-0 z-40 bg-background">
-                <div className="container mx-auto px-6 py-6">
+            <div className="sticky top-0 z-40 border-b relative overflow-hidden">
+                {/* 背景图片 */}
+                <div className="absolute top-0 left-0 right-0 w-full overflow-hidden" style={{ height: '100%', zIndex: 0 }}>
+                    <div className="relative w-full h-full">
+                        <img 
+                            className="w-full h-full object-cover animate-fade-in" 
+                            style={{ animation: 'fadeIn 1s ease-in-out' }}
+                            src={__APP_ENV__.BASE_URL + '/assets/hc.png'} 
+                            alt="恒创" 
+                        />
+                        {/* 渐变遮罩，让文字更易读 */}
+                        <div className="absolute bottom-0 left-0 right-0 h-full bg-gradient-to-t from-white/95 dark:from-gray-900/95 via-white/80 dark:via-gray-900/80 to-transparent"></div>
+                    </div>
+                </div>
+                {/* 添加CSS动画样式 */}
+                <style>{`
+                    @keyframes fadeIn {
+                        from { opacity: 0; }
+                        to { opacity: 1; }
+                    }
+                    .animate-fade-in {
+                        animation: fadeIn 1s ease-in-out;
+                    }
+                `}</style>
+                <div className="container mx-auto px-6 py-6 relative z-10">
                     <div className="mt-2">
                         <h1 className="text-blue-600 text-[32px] truncate max-w-[600px] font-medium mb-2">{bsConfig?.applicationCenterWelcomeMessage || localize('com_app_center_welcome')}</h1>
                         <p className="text-muted-foreground text-base truncate max-w-[600px]">{bsConfig?.applicationCenterDescription || localize('com_app_center_description')}</p>
                     </div>
-                    <div className="mt-12 flex items-start justify-between">
+                    <div className="mt-8 flex items-start justify-between">
                         <AgentNavigation onCategoryChange={handleCategoryChange} onRefresh={refreshAgentData} />
                         <div className="relative w-80 min-w-48">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500 w-4 h-4" />
@@ -283,6 +306,127 @@ export default function AgentCenter() {
             {/* Scrollable Content */}
             <div className="relative" style={{ height: "calc(100vh - 200px)" }}>
                 <div ref={scrollContainerRef} className="container mx-auto px-6 py-6 pb-96 h-full overflow-y-auto scrollbar-hide">
+                    {/* 热门上新区域 */}
+                    {!isSearching && (
+                        <div className="mb-8">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="w-5 h-5 bg-gradient-to-br from-orange-400 to-red-500 rounded flex items-center justify-center">
+                                    <span className="text-white text-xs font-bold">🔥</span>
+                                </div>
+                                <span className="text-orange-500 font-semibold text-sm">热门上新</span>
+                            </div>
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
+                                汇报/培训/答辩，海量PPT模版免费用
+                            </h2>
+                            <div className="flex gap-2 mb-6">
+                                <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm text-gray-600 dark:text-gray-400">PPT模版</span>
+                                <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm text-gray-600 dark:text-gray-400">汇报</span>
+                                <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm text-gray-600 dark:text-gray-400">培训</span>
+                                <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 rounded-full text-sm text-gray-600 dark:text-gray-400">答辩</span>
+                            </div>
+
+                            {/* 主要功能卡片和工具卡片 */}
+                            <div className="flex gap-6 mb-8">
+                                {/* 左侧：三个主要功能卡片 */}
+                                <div className="flex-1 grid grid-cols-3 gap-4">
+                                    {/* PPT创作 */}
+                                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-5 border border-blue-100 dark:border-blue-800/30 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white text-xl font-bold">
+                                                N
+                                            </div>
+                                            <div className="px-2 py-1 bg-purple-500 rounded text-xs text-white">海量模版</div>
+                                        </div>
+                                        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">PPT创作</h3>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">一句话长文本生成精美PPT</p>
+                                        <button className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            开始创作
+                                        </button>
+                                    </div>
+
+                                    {/* 实时记录 */}
+                                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-5 border border-green-100 dark:border-green-800/30 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mb-3">
+                                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                            </svg>
+                                        </div>
+                                        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">实时记录</h3>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">音转文，区分发言人总结要点</p>
+                                        <button className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                            </svg>
+                                            开始录音
+                                        </button>
+                                    </div>
+
+                                    {/* 音视频速读 */}
+                                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl p-5 border border-blue-100 dark:border-blue-800/30 hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mb-3">
+                                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-2">音视频速读</h3>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">音转文，网课神器</p>
+                                        <button className="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-2">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            开始上传
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* 右侧：工具卡片 */}
+                                <div className="w-64 space-y-3">
+                                    {/* 阅读助手 */}
+                                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded flex items-center justify-center">
+                                                <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+                                            <h4 className="font-semibold text-sm text-gray-800 dark:text-white">阅读助手</h4>
+                                        </div>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">文档问答总结翻译</p>
+                                    </div>
+
+                                    {/* 链接速读 */}
+                                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded flex items-center justify-center">
+                                                <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                </svg>
+                                            </div>
+                                            <h4 className="font-semibold text-sm text-gray-800 dark:text-white">链接速读</h4>
+                                        </div>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">解析网页和播客链接</p>
+                                    </div>
+
+                                    {/* AI笔记 */}
+                                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow cursor-pointer">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded flex items-center justify-center">
+                                                <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </div>
+                                            <h4 className="font-semibold text-sm text-gray-800 dark:text-white">AI笔记</h4>
+                                        </div>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400">个人知识管理利器</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <AgentGrid
                         favorites={favorites}

@@ -141,7 +141,18 @@ const ChatView = ({ id = '', index = 0, shareToken = '' }: { id?: string, index?
   } else if (messagesTree && messagesTree.length !== 0) {
     content = <MessagesView readOnly={shareToken} messagesTree={messagesTree} Header={<HeaderTitle readOnly={shareToken} conversation={conversation} logo={null} />} />;
   } else {
-    content = <Landing lingsi={isLingsi} setLingsi={setIsLingsi} isNew={isNew} />;
+    const chatFormElement = (
+      <div
+        id="floatPanne"
+        className={cn(
+          'w-full border-t-0 pl-0 pt-2 dark:border-white/20 md:w-[calc(100%-.5rem)] md:border-t-0 md:border-transparent md:pl-0 md:pt-0 md:dark:border-transparent'
+        )}
+      >
+        <ChatForm isLingsi={isLingsi} setShowCode={setShowCode} index={index} readOnly={shareToken} />
+        <div className="h-[2vh]"></div>
+      </div>
+    );
+    content = <Landing lingsi={isLingsi} setLingsi={setIsLingsi} isNew={isNew} chatForm={isNew ? chatFormElement : undefined} />;
   }
 
   return (
@@ -170,17 +181,20 @@ const ChatView = ({ id = '', index = 0, shareToken = '' }: { id?: string, index?
                   messagesTree ? ' h-full' : 'h-[calc(100vh-200px)]'
                 )}>
                   {content}
-                  <div
-                    id="floatPanne"
-                    className={cn(
-                      'w-full border-t-0 pl-0 pt-2 dark:border-white/20 md:w-[calc(100%-.5rem)] md:border-t-0 md:border-transparent md:pl-0 md:pt-0 md:dark:border-transparent',
-                      inputFloat ? 'fixed top-0 z-10 bg-white pb-20 md:pt-5' : ''
-                    )}
-                    style={{ width: inputFloat ? `${inputWidth}px` : '100%' }} // Dynamically set width
-                  >
-                    <ChatForm isLingsi={isLingsi} setShowCode={setShowCode} index={index} readOnly={shareToken} />
-                    {!inputFloat && <div className="h-[2vh]"></div>}
-                  </div>
+                  {/* 只在有消息时显示ChatForm，新会话时ChatForm在Landing组件内 */}
+                  {messagesTree && messagesTree.length !== 0 && (
+                    <div
+                      id="floatPanne"
+                      className={cn(
+                        'w-full border-t-0 pl-0 pt-2 dark:border-white/20 md:w-[calc(100%-.5rem)] md:border-t-0 md:border-transparent md:pl-0 md:pt-0 md:dark:border-transparent',
+                        inputFloat ? 'fixed top-0 z-10 bg-white pb-20 md:pt-5' : ''
+                      )}
+                      style={{ width: inputFloat ? `${inputWidth}px` : '100%' }} // Dynamically set width
+                    >
+                      <ChatForm isLingsi={isLingsi} setShowCode={setShowCode} index={index} readOnly={shareToken} />
+                      {!inputFloat && <div className="h-[2vh]"></div>}
+                    </div>
+                  )}
                 </div>
                 <Cases ref={casesRef} t={t} isLingsi={isLingsi} setIsLingsi={setIsLingsi} />
               </div>
