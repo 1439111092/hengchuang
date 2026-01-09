@@ -98,27 +98,68 @@ export default function NewChat({
   return (
     <div className="sticky left-0 right-0 top-0 z-50 bg-[#F9FBFF]">
       <div className="pb-0.5 last:pb-0" style={{ transform: 'none' }}>
-        <div className="mb-3 flex justify-between gap-3 px-3 py-2">
-          <div className="flex items-center gap-2">
-            {bsConfig?.sidebarIcon.image && <img className='w-10 overflow' src={__APP_ENV__.BASE_URL + bsConfig?.sidebarIcon.image} />}
-            <div className='dark:text-gray-50'>{bsConfig?.sidebarSlogan}</div>
-          </div>
-          <div className="cursor-pointer rounded-md p-1 hover:bg-slate-100">
-            {/* <CloseToggleIcon className="size-5" /> */}
+        <div className="mb-3 px-3 pt-3 pb-2">
+          <div 
+            className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 hover:shadow-md"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 251, 255, 1) 100%)',
+              border: '1px solid rgba(229, 231, 235, 0.8)',
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
+            }}
+          >
+            {bsConfig?.sidebarIcon.image && (
+              <div 
+                className="flex-shrink-0 flex items-center justify-center"
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.1) 100%)',
+                  padding: '6px',
+                }}
+              >
+                <img 
+                  className='w-full h-full object-contain' 
+                  src={__APP_ENV__.BASE_URL + bsConfig?.sidebarIcon.image}
+                  alt="Logo"
+                  style={{
+                    filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))',
+                  }}
+                />
+              </div>
+            )}
+            <div 
+              className='flex-1 min-w-0'
+              style={{
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                fontSize: '15.5px',
+                fontWeight: 600,
+                color: 'rgba(17, 24, 39, 0.95)',
+                letterSpacing: '0.01em',
+                lineHeight: '1.5',
+              }}
+            >
+              {bsConfig?.sidebarSlogan || '恒创智能体聊天助手'}
+            </div>
           </div>
         </div>
-        <div className='flex gap-1 w-full'>
-          <Button variant="outline" className='shadow-sm h-10 rounded-xl px-3 flex-shrink-0'
+        <div className='flex w-full px-3' style={{ gap: '6px' }}>
+          <Button 
+            variant="outline" 
+            className='shadow-sm h-10 rounded-xl px-3 flex-1'
+            style={{ minWidth: 0, flex: '1 1 0%' }}
             onClick={() => {
               navigate('/apps');
-            }}>
+            }}
+          >
             <AppsIcon />
             <span className="text-sm font-normal whitespace-nowrap ml-0.5">{localize('com_nav_app_center')}</span>
           </Button>
           {/* 新建btn */}
           <Button
             variant="outline"
-            className="shadow-sm h-10 rounded-xl px-3 flex-shrink-0"
+            className="shadow-sm h-10 rounded-xl px-3 flex-1"
+            style={{ minWidth: 0, flex: '1 1 0%' }}
             aria-label={localize('com_ui_new_chat')}
             onClick={() => {
               document.getElementById("create-convo-btn")?.click();

@@ -1,8 +1,9 @@
-import type { ConversationListResponse } from '~/data-provider/data-provider/src';
+import type { ConversationListResponse, TConversation } from '~/data-provider/data-provider/src';
 import { PermissionTypes, Permissions } from '~/data-provider/data-provider/src';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchContext } from '~/Providers';
 import { Conversations } from '~/components/Conversations';
+import HistorySearch from '~/components/Conversations/HistorySearch';
 import { Spinner } from '~/components/svg';
 import { useConversationsInfiniteQuery } from '~/data-provider';
 import {
@@ -136,6 +137,15 @@ const Nav = ({
     [data, searchQuery, searchQueryRes?.data],
   );
 
+  // 本地搜索过滤状态
+  const [filteredConversations, setFilteredConversations] = useState<Array<TConversation | null>>(conversations);
+  const [searchValue, setSearchValue] = useState('');
+
+  // 当对话列表变化时，更新过滤后的列表
+  useEffect(() => {
+    setFilteredConversations(conversations);
+  }, [conversations]);
+
   const toggleNavVisible = () => {
     setNavVisible((prev: boolean) => {
       localStorage.setItem('navVisible', JSON.stringify(!prev));
@@ -194,16 +204,34 @@ const Nav = ({
                       '-mr-2 flex-1 flex-col overflow-y-auto pr-2 transition-opacity duration-500',
                       isHovering ? '' : 'scrollbar-transparent',
                     )}
+                    style={{ position: 'relative' }}
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                     ref={containerRef}
                   >
+                    {/* 搜索框 */}
+                    <div 
+                      className="sticky top-0 z-20 bg-[#F9FBFF]"
+                      style={{ 
+                        paddingTop: '8px',
+                        paddingBottom: '4px',
+                      }}
+                    >
+                      <HistorySearch
+                        conversations={conversations}
+                        onFilterChange={setFilteredConversations}
+                        onSearchValueChange={setSearchValue}
+                      />
+                    </div>
                     {/* 会话列表 */}
-                    <Conversations
-                      conversations={conversations}
-                      moveToTop={moveToTop}
-                      toggleNav={itemToggleNav}
-                    />
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                      <Conversations
+                        conversations={filteredConversations}
+                        moveToTop={moveToTop}
+                        toggleNav={itemToggleNav}
+                        searchValue={searchValue}
+                      />
+                    </div>
                     {(isFetchingNextPage || showLoading) && (
                       <Spinner className={cn('m-1 mx-auto mb-4 h-4 w-4 text-text-primary')} />
                     )}

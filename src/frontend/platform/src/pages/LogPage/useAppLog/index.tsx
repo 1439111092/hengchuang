@@ -3,13 +3,8 @@ import FilterByApp from "@/components/bs-comp/filterTableDataComponent/FilterByA
 import FilterByDate from "@/components/bs-comp/filterTableDataComponent/FilterByDate";
 import FilterByUser from "@/components/bs-comp/filterTableDataComponent/FilterByUser";
 import FilterByUsergroup from "@/components/bs-comp/filterTableDataComponent/FilterByUsergroup";
-import { ThunmbIcon } from "@/components/bs-icons";
-import { LoadIcon, LoadingIcon } from "@/components/bs-icons/loading";
-import { Badge } from "@/components/bs-ui/badge";
-import { Button } from "@/components/bs-ui/button";
-import AutoPagination from "@/components/bs-ui/pagination/autoPagination";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/bs-ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/bs-ui/table";
+import AutoPagination from "@/components/bs-ui/pagination/autoPagination";
 import { useToast } from "@/components/bs-ui/toast/use-toast";
 import { locationContext } from "@/contexts/locationContext";
 import { userContext } from "@/contexts/userContext";
@@ -19,6 +14,9 @@ import { exportCsv, formatDate } from "@/util/utils";
 import { useContext, useEffect, useMemo, useReducer, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { Table, Button as AntdButton, Space, Card, Tag, Tooltip, Typography } from "antd";
+import { DownloadOutlined, ReloadOutlined, LikeOutlined, DislikeOutlined, CopyOutlined, EyeOutlined } from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
 
 const getStrTime = (date) => {
     const start_date = date[0] && (formatDate(date[0], 'yyyy-MM-dd') + ' 00:00:00')
@@ -77,9 +75,9 @@ export default function AppUseLog() {
         })
     });
     const processedData = useMemo(() =>
-        datalist.map(el => ({
+        datalist.map((el: any) => ({
             ...el,
-            userGroupsString: el.user_groups.map(item => item.name).join(','),
+            userGroupsString: (el.user_groups || []).map((item: any) => item.name).join(','),
         })),
         [datalist] // Dependency: datalist
     );
@@ -106,13 +104,13 @@ export default function AppUseLog() {
     }
     // Cache page before entering detail page, temporary solution
     const handleCachePage = () => {
-        window.LogPage = page
+        (window as any).LogPage = page
     }
     useEffect(() => {
-        const _page = window.LogPage
+        const _page = (window as any).LogPage
         if (_page) {
             setPage(_page);
-            delete window.LogPage
+            delete (window as any).LogPage
         } else {
             setPage(1);
         }
@@ -120,6 +118,104 @@ export default function AppUseLog() {
 
     const { user } = useContext(userContext)
     const [auditing, setAuditing] = useState(false);
+    const { Text } = Typography;
+
+    // 定义表格列
+    const columns: ColumnsType<any> = [
+        {
+            title: t('log.appName'),
+            dataIndex: 'flow_name',
+            key: 'flow_name',
+            width: 200,
+            ellipsis: {
+                showTitle: false,
+            },
+            render: (text: string) => (
+                <Tooltip placement="topLeft" title={text}>
+                    <Text className="font-medium" style={{ maxWidth: 200 }} ellipsis>
+                        {text}
+                    </Text>
+                </Tooltip>
+            ),
+        },
+        {
+            title: t('log.userName'),
+            dataIndex: 'user_name',
+            key: 'user_name',
+            width: 180,
+        },
+        {
+            title: t('log.userGroup'),
+            dataIndex: 'userGroupsString',
+            key: 'userGroupsString',
+            width: 150,
+        },
+        {
+            title: t('createTime'),
+            dataIndex: 'create_time',
+            key: 'create_time',
+            width: 180,
+            render: (text: string) => text?.replace('T', ' ') || '--',
+        },
+        {
+            title: t('log.userFeedback'),
+            key: 'feedback',
+            width: 200,
+            render: (_, record: any) => (
+                <Space size="middle">
+                    <Tooltip title={t('log.likeFeedback')}>
+                        <Space size={4}>
+                            <LikeOutlined style={{ color: record.like_count ? '#1890ff' : '#8c8c8c' }} />
+                            <span>{record.like_count || 0}</span>
+                        </Space>
+                    </Tooltip>
+                    <Tooltip title={t('log.dislikeFeedback')}>
+                        <Space size={4}>
+                            <DislikeOutlined style={{ color: record.dislike_count ? '#ff4d4f' : '#8c8c8c' }} />
+                            <span>{record.dislike_count || 0}</span>
+                        </Space>
+                    </Tooltip>
+                    <Tooltip title={t('log.copyFeedback')}>
+                        <Space size={4}>
+                            <CopyOutlined style={{ color: record.copied_count ? '#52c41a' : '#8c8c8c' }} />
+                            <span>{record.copied_count || 0}</span>
+                        </Space>
+                    </Tooltip>
+                </Space>
+            ),
+        },
+        ...(appConfig.isPro ? [{
+            title: t('log.sensitiveReviewResult'),
+            key: 'sensitive_status',
+            width: 150,
+            render: (_: any, record: any) => (
+                record.sensitive_status === 1 ? (
+                    <Tag color="success">{t('log.sensitivePass')}</Tag>
+                ) : (
+                    <Tag color="error">{t('log.sensitiveViolation')}</Tag>
+                )
+            ),
+        }] : []),
+        {
+            title: t('operations'),
+            key: 'action',
+            width: 100,
+            align: 'right',
+            render: (_: any, record: any) => (
+                record.chat_id ? (
+                    <Link
+                        to={`/log/chatlog/${record.flow_id}/${record.chat_id}/${record.flow_type}`}
+                        onClick={handleCachePage}
+                    >
+                        <AntdButton type="link" icon={<EyeOutlined />} size="small">
+                            {t('lib.details')}
+                        </AntdButton>
+                    </Link>
+                ) : null
+            ),
+        },
+    ];
+
     const handleExport = async () => {
         const generateFileName = (start_date, end_date, userName) => {
             let str = '';
@@ -187,7 +283,7 @@ export default function AppUseLog() {
         }
 
         // Generate request parameters
-        const [start_date, end_date] = getStrTime([adjustedStart, adjustedEnd])
+        const [start_date, end_date] = getStrTime([adjustedStart, adjustedEnd] as [Date, Date])
 
         exportCsvDataApi({
             flow_ids: filters.appName?.length ? filters.appName : undefined,
@@ -260,143 +356,132 @@ export default function AppUseLog() {
     };
 
 
-    return <div className="relative">
-        {loading && <div className="absolute w-full h-full top-0 left-0 flex justify-center items-center z-10 bg-[rgba(255,255,255,0.6)] dark:bg-blur-shared">
-            <LoadingIcon />
-        </div>}
-        <div className="h-[calc(100vh-128px)] overflow-y-auto px-2 py-4 pb-20">
-            <div className="flex flex-wrap gap-4">
-                <FilterByApp value={filters.appName} placeholder={t('log.appName')} onChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['appName']: value } })} />
-                <FilterByUser value={filters.userName} placeholder={t('log.userName')} onChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['userName']: value } })} />
-                <FilterByUsergroup value={filters.userGroup} placeholder={t('log.userGroup')} onChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['userGroup']: value } })} />
-                <FilterByDate value={filters.dateRange} placeholders={[`${t('log.startDate')}`, `${t('log.endDate')}`]} onChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['dateRange']: value } })} />
-                <div className="w-[200px] relative">
-                    <Select value={filters.feedback} onValueChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['feedback']: value } })}>
-                        <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder={t('log.userFeedbackPlaceholder')} />
-                        </SelectTrigger>
-                        <SelectContent className="max-w-[200px] break-all">
-                            <SelectGroup>
-                                <SelectItem value={'like'}>{t('log.likeFeedback')}</SelectItem>
-                                <SelectItem value={'dislike'}>{t('log.dislikeFeedback')}</SelectItem>
-                                <SelectItem value={'copied'}>{t('log.copyFeedback')}</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
+    return (
+        <div className="relative">
+            <Card 
+                className="shadow-sm"
+                bodyStyle={{ padding: '20px' }}
+            >
+                {/* 筛选区域 */}
+                <div className="mb-4">
+                    <Space wrap size="middle" className="w-full">
+                        <FilterByApp 
+                            value={filters.appName} 
+                            placeholder={t('log.appName')} 
+                            onChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['appName']: value } })} 
+                        />
+                        <FilterByUser 
+                            value={filters.userName} 
+                            placeholder={t('log.userName')} 
+                            onChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['userName']: value } })} 
+                        />
+                        <FilterByUsergroup 
+                            value={filters.userGroup} 
+                            placeholder={t('log.userGroup')} 
+                            onChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['userGroup']: value } })} 
+                        />
+                        <FilterByDate 
+                            value={filters.dateRange as any} 
+                            placeholders={[`${t('log.startDate')}`, `${t('log.endDate')}`]} 
+                            onChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['dateRange']: value } })} 
+                        />
+                        <div className="w-[200px] relative">
+                            <Select 
+                                value={filters.feedback} 
+                                onValueChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['feedback']: value } })}
+                            >
+                                <SelectTrigger className="w-[200px]">
+                                    <SelectValue placeholder={t('log.userFeedbackPlaceholder')} />
+                                </SelectTrigger>
+                                <SelectContent className="max-w-[200px] break-all">
+                                    <SelectGroup>
+                                        <SelectItem value={'like'}>{t('log.likeFeedback')}</SelectItem>
+                                        <SelectItem value={'dislike'}>{t('log.dislikeFeedback')}</SelectItem>
+                                        <SelectItem value={'copied'}>{t('log.copyFeedback')}</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        {appConfig.isPro && (
+                            <div className="w-[200px] relative">
+                                <Select 
+                                    value={filters.sensitive_status} 
+                                    onValueChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['sensitive_status']: value } })}
+                                >
+                                    <SelectTrigger className="w-[200px]">
+                                        <SelectValue placeholder={t('log.sensitiveReviewResult')} />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-w-[200px] break-all">
+                                        <SelectGroup>
+                                            <SelectItem value={'2'}>{t('log.sensitiveViolation')}</SelectItem>
+                                            <SelectItem value={'1'}>{t('log.sensitivePass')}</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+                        <AntdButton 
+                            type="primary"
+                            icon={<ReloadOutlined />}
+                            onClick={() => {
+                                const dateRange = filters.dateRange || [];
+                                let originalStart = dateRange[0];
+                                let originalEnd = dateRange[1];
+                                let adjustedStart = originalStart;
+                                let adjustedEnd = originalEnd;
+                                if (originalStart && !originalEnd) {
+                                    adjustedEnd = undefined;
+                                } else if (!originalStart && originalEnd) {
+                                    adjustedStart = undefined;
+                                }
+                                filterData({ ...filters, dateRange: [adjustedStart, adjustedEnd] as any });
+                            }}
+                        >
+                            {t('log.searchButton')}
+                        </AntdButton>
+                        <AntdButton 
+                            onClick={resetClick}
+                        >
+                            {t('log.resetButton')}
+                        </AntdButton>
+                        <AntdButton 
+                            type="primary"
+                            icon={<DownloadOutlined />}
+                            onClick={handleExport}
+                            loading={auditing}
+                        >
+                            {t('log.exportButton')}
+                        </AntdButton>
+                    </Space>
                 </div>
-                {appConfig.isPro && <div className="w-[200px] relative">
-                    <Select value={filters.sensitive_status} onValueChange={(value) => dispatch({ type: 'SET_FILTER', payload: { ['sensitive_status']: value } })} >
-                        <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder={t('log.sensitiveReviewResult')} />
-                        </SelectTrigger>
-                        <SelectContent className="max-w-[200px] break-all">
-                            <SelectGroup>
-                                <SelectItem value={'2'}>{t('log.sensitiveViolation')}</SelectItem>
-                                <SelectItem value={'1'}>{t('log.sensitivePass')}</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </div>}
-                <Button onClick={() => {
-                    const dateRange = filters.dateRange || [];
-                    let originalStart = dateRange[0];
-                    let originalEnd = dateRange[1];
-                    let adjustedStart = originalStart;
-                    let adjustedEnd = originalEnd;
-                    if (originalStart && !originalEnd) {
-                        adjustedEnd = undefined;
-                    } else if (!originalStart && originalEnd) {
-                        adjustedStart = undefined;
-                    }
 
-                    filterData({ ...filters, dateRange: [adjustedStart, adjustedEnd] })
-                }} >{t('log.searchButton')}</Button>
-                <Button onClick={resetClick} variant="outline">{t('log.resetButton')}</Button>
-                <Button onClick={handleExport} disabled={auditing}>
-                    {auditing && <LoadIcon className="mr-1" />}{t('log.exportButton')}</Button>
-            </div>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[200px]">{t('log.appName')}</TableHead>
-                        <TableHead>{t('log.userName')}</TableHead>
-                        <TableHead>{t('log.userGroup')}</TableHead>
-                        <TableHead>{t('createTime')}</TableHead>
-                        <TableHead>{t('log.userFeedback')}</TableHead>
-                        {appConfig.isPro && <TableHead>{t('log.sensitiveReviewResult')}</TableHead>}
-                        <TableHead className="text-right">{t('operations')}</TableHead>
-                    </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                    {processedData.map((el: any) => (
-                        <TableRow key={el.id}>
-                            <TableCell className="font-medium max-w-[200px]">
-                                <div className=" truncate-multiline">{el.flow_name}</div>
-                            </TableCell>
-                            <TableCell>{el.user_name}</TableCell>
-                            <TableCell>{el.userGroupsString}</TableCell>
-                            <TableCell>{el.create_time.replace('T', ' ')}</TableCell>
-                            <TableCell className="break-all flex gap-2">
-                                <div className="text-center text-xs relative">
-                                    <ThunmbIcon
-                                        type='like'
-                                        className={`cursor-pointer ${el.like_count && 'text-primary hover:text-primary'}`}
-                                    />
-                                    <span className="left-4 top-[-4px] break-keep">{el.like_count}</span>
-                                </div>
-                                <div className="text-center text-xs relative">
-                                    <ThunmbIcon
-                                        type='unLike'
-                                        className={`cursor-pointer ${el.dislike_count && 'text-primary hover:text-primary'}`}
-                                    />
-                                    <span className="left-4 top-[-4px] break-keep">{el.dislike_count}</span>
-                                </div>
-                                <div className="text-center text-xs relative">
-                                    <ThunmbIcon
-                                        type='copy'
-                                        className={`cursor-pointer ${el.copied_count && 'text-primary hover:text-primary'}`}
-                                    />
-                                    <span className="left-4 top-[-4px] break-keep">{el.copied_count}</span>
-                                </div>
-                            </TableCell>
-                            {appConfig.isPro && <TableCell>
-                                {el.sensitive_status === 1 ? <Badge variant="outline" className="text-green-500">{t('log.sensitivePass')}</Badge>
-                                    : <Badge variant="outline" className="text-red-500">{t('log.sensitiveViolation')}</Badge>
-                                }
-                            </TableCell>}
-                            <TableCell className="text-right" onClick={() => {
-                                // @ts-ignore
-                                // window.libname = el.name;
-                            }}>
-                                {/* <Button variant="link" className="" onClick={() => setOpenData(true)}>Add to dataset</Button> */}
-                                {
-                                    el.chat_id && <Link
-                                        to={`/log/chatlog/${el.flow_id}/${el.chat_id}/${el.flow_type}`}
-                                        className="no-underline hover:underline text-primary"
-                                        onClick={handleCachePage}
-                                    >{t('lib.details')}</Link>
-                                }
-                            </TableCell>
-                        </TableRow>
-                    )
-                    )}
-                </TableBody>
-            </Table>
-        </div>
-        <div className="bisheng-table-footer px-6 bg-background-login">
-            <p className="desc"></p>
-            <div>
-                <AutoPagination
-                    page={page}
-                    showJumpInput
-                    jumpToText={t('log.pagination.jumpTo')}
-                    pageText={t('log.pagination.page')}
-                    pageSize={pageSize}
-                    total={total}
-                    onChange={(newPage) => setPage(newPage)}
-                />
+                {/* 表格区域 */}
+                <div className="bg-white rounded-lg">
+                    <Table
+                        columns={columns}
+                        dataSource={processedData}
+                        rowKey="id"
+                        loading={loading}
+                        pagination={false}
+                        scroll={{ x: 'max-content' }}
+                        size="middle"
+                    />
+                </div>
+            </Card>
+            <div className="bisheng-table-footer px-6 bg-background-login">
+                <p className="desc"></p>
+                <div>
+                    <AutoPagination
+                        page={page}
+                        showJumpInput
+                        jumpToText={t('log.pagination.jumpTo')}
+                        pageText={t('log.pagination.page')}
+                        pageSize={pageSize}
+                        total={total}
+                        onChange={(newPage) => setPage(newPage)}
+                    />
+                </div>
             </div>
         </div>
-    </div>
+    );
 };

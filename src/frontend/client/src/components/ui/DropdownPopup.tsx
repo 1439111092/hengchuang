@@ -42,7 +42,7 @@ const DropdownPopup: React.FC<DropdownProps> = ({
       {trigger}
       <Ariakit.Menu
         id={menuId}
-        className={cn('popover-ui z-50', className)}
+        className={cn('popover-ui', className)}
         gutter={gutter}
         modal={modal}
         sameWidth={sameWidth}

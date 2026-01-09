@@ -167,13 +167,14 @@ export default function Conversation({
   return (
     <div
       className={cn(
-        "group relative mt-2 flex h-10 w-full items-center rounded-lg hover:bg-[#EBEFF8]",
-        isActiveConvo ? "bg-[#EBEFF8]" : "",
+        "group relative flex h-11 w-full items-center rounded-xl transition-all duration-200",
+        "hover:bg-[#EBEFF8] hover:shadow-sm",
+        isActiveConvo ? "bg-[#EBEFF8] shadow-sm" : "bg-transparent",
         isSmallScreen ? "h-12" : ""
       )}
     >
       {renaming ? (
-        <div className="absolute inset-0 z-20 flex w-full items-center rounded-lg bg-[#EBEFF8] p-1.5">
+        <div className="absolute inset-0 z-20 flex w-full items-center rounded-xl bg-[#EBEFF8] p-1.5 shadow-sm">
           <input
             ref={inputRef}
             type="text"
@@ -217,8 +218,8 @@ export default function Conversation({
           data-testid="convo-item"
           onClick={clickHandler}
           className={cn(
-            "flex grow cursor-pointer items-center gap-2 overflow-hidden whitespace-nowrap break-all rounded-lg px-2 py-2",
-            isActiveConvo ? "bg-[#EBEFF8]" : ""
+            "flex grow cursor-pointer items-center gap-2.5 overflow-hidden whitespace-nowrap break-all rounded-xl px-3 py-2.5 transition-all duration-200",
+            isActiveConvo ? "bg-[#EBEFF8]" : "hover:bg-[#EBEFF8]/50"
           )}
           title={title ?? ""}
         >
@@ -229,7 +230,7 @@ export default function Conversation({
             context="menu-item"
           /> */}
           <div
-            className="relative line-clamp-1 flex-1 grow overflow-hidden"
+            className="relative line-clamp-1 flex-1 grow overflow-hidden flex items-center"
             onDoubleClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -245,10 +246,23 @@ export default function Conversation({
                   ? "/assets/linsi.png"
                   : "/assets/talk.png")
               }
-              className="size-6 inline-block mr-2.5"
+              className="size-5 inline-block mr-2.5 flex-shrink-0 opacity-80"
               alt=""
             />
-            {title}
+            <span 
+              className="truncate"
+              style={{
+                fontSize: '14px',
+                color: isActiveConvo ? 'rgba(31, 41, 55, 1)' : 'rgba(31, 41, 55, 0.85)',
+                fontWeight: isActiveConvo ? 500 : 400,
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                letterSpacing: '0.01em',
+                lineHeight: '1.5',
+                transition: 'color 0.2s ease, font-weight 0.2s ease',
+              }}
+            >
+              {title}
+            </span>
           </div>
           {isActiveConvo ? (
             <div className="absolute bottom-0 right-0 top-0 w-20 rounded-r-lg bg-gradient-to-l" />
